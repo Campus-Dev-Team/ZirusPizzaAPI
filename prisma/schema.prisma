@@ -12,3 +12,101 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Departamento {
+  id_departamento Int     @id @default(autoincrement())
+  nombre          String  @db.VarChar(100)
+  ciudades        Ciudad[]
+}
+
+model Ciudad {
+  id_ciudad       Int         @id @default(autoincrement())
+  nombre          String      @db.VarChar(100)
+  id_departamento Int
+  departamento    Departamento @relation(fields: [id_departamento], references: [id_departamento])
+  clientes        Cliente[]
+}
+
+model Cliente {
+  id_cliente        Int       @id @default(autoincrement())
+  nombre            String    @db.VarChar(100)
+  telefono          String?   @db.VarChar(20)
+  id_ciudad         Int
+  detalle_direccion String?   @db.VarChar(200)
+  fecha_registro    DateTime  @default(now())
+  ciudad            Ciudad    @relation(fields: [id_ciudad], references: [id_ciudad])
+  pedidos           Pedido[]
+  conversaciones    Conversacion[]
+}
+
+model Categoria {
+  id_categoria Int     @id @default(autoincrement())
+  nombre       String  @db.VarChar(100)
+  descripcion  String?
+  productos    Producto[]
+}
+
+model Producto {
+  id_producto  Int        @id @default(autoincrement())
+  nombre       String     @db.VarChar(100)
+  descripcion  String?
+  precio       Decimal    @db.Decimal(10, 2)
+  id_categoria Int
+  disponible   Boolean    @default(true)
+  categoria    Categoria  @relation(fields: [id_categoria], references: [id_categoria])
+  inventario   Inventario?
+  detalles     DetallePedido[]
+}
+
+model Inventario {
+  id_inventario        Int        @id @default(autoincrement())
+  id_producto          Int        @unique
+  cantidad            Int
+  fecha_actualizacion  DateTime   @default(now())
+  usuario_actualizacion Int?
+  tipo_movimiento      String     @db.VarChar(50)
+  producto            Producto   @relation(fields: [id_producto], references: [id_producto])
+}
+
+model Pedido {
+  id_pedido    Int       @id @default(autoincrement())
+  id_cliente   Int
+  fecha_pedido DateTime  @default(now())
+  estado       String    @db.VarChar(50) @default("pendiente")
+  total        Decimal   @db.Decimal(10,2)
+  notas        String?
+  cliente      Cliente   @relation(fields: [id_cliente], references: [id_cliente])
+  detalles     DetallePedido[]
+}
+
+model DetallePedido {
+  id_detalle     Int       @id @default(autoincrement())
+  id_pedido     Int
+  id_producto   Int
+  cantidad      Int
+  precio_unitario Decimal   @db.Decimal(10,2)
+  subtotal      Decimal     @db.Decimal(10,2)
+  pedido       Pedido      @relation(fields: [id_pedido], references: [id_pedido])
+  producto     Producto    @relation(fields: [id_producto], references: [id_producto])
+}
+
+model Conversacion {
+  id_conversacion       Int        @id @default(autoincrement())
+  id_cliente           Int
+  fecha_inicio         DateTime    @default(now())
+  fecha_ultima_actividad DateTime @default(now())
+  estado               String?     @db.VarChar(50) @default("activa")
+  cliente             Cliente     @relation(fields: [id_cliente], references: [id_cliente])
+  mensajes            Mensaje[]
+}
+
+model Mensaje {
+  id_mensaje      Int       @id @default(autoincrement())
+  id_conversacion Int
+  es_bot          Boolean
+  contenido       String
+  fecha_mensaje   DateTime  @default(now())
+  intento         String?   @db.VarChar(100)
+  contexto        Json?
+  conversacion    Conversacion @relation(fields: [id_conversacion], references: [id_conversacion])
+}
