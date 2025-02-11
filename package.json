@@ -1,0 +1,13 @@
+{
+  "name": "ziruspizzaapi",
+  "version": "1.0.0",
+  "description": "Este proyecto es una API que gestiona la conexión con una base de datos PostgreSQL, proporcionando una interfaz para interactuar con los datos de manera eficiente y segura.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node --env-file=.env app.js",
+    "dev": "node --watch --env-file=.env  app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
