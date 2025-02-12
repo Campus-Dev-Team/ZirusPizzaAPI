@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
+    "cors": "^2.8.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
