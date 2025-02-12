@@ -1,6 +1,7 @@
 import express from 'express';
 import { swaggerDocs } from './config/swagger.js';
 import routes from './API/V1/routes/index.js';
+import { versionControl } from './middlewares/versionControl.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,8 +10,11 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/api', versionControl);
+
 // Rutas
 app.use('/api/v1', routes);
+
 
 // Inicializar Swagger
 swaggerDocs(app, port);
