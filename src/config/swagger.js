@@ -17,13 +17,17 @@ const options = {
       {
         url: 'http://localhost:3000/api/v1',
         description: 'Servidor de desarrollo'
+      },
+      {
+        url: 'http://172.16.104.13:3000/api/v1',
+        description: 'Servidor en red local'
       }
     ],
     components: {
       schemas: {
         Cliente: {
           type: 'object',
-          required: ['nombre', 'id_ciudad','telefono'],
+          required: ['nombre', 'id_ciudad', 'telefono'],
           properties: {
             id_cliente: {
               type: 'integer',
