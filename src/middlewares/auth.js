@@ -10,44 +10,30 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
  */
 export const authenticate = (req, res, next) => {
   try {
-    // Obtener el token del header Authorization
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) {
-      return res.status(401).json({
-        status: 'fail',
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'No se proporcionó token de acceso'
-        }
-      });
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new AuthorizationError('No se proporcionó token de autenticación');
     }
 
-    // Verificar el token
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({
-          status: 'fail',
-          error: {
-            code: 'FORBIDDEN',
-            message: 'Token inválido o expirado'
-          }
-        });
-      }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Agregar la información decodificada a la solicitud
+    // Verifica si es un token de API (no verifica expiración)
+    if (decoded.role === 'api') {
       req.user = decoded;
-      next();
-    });
+      return next();
+    }
+
+    // Para tokens normales, verifica expiración
+    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+      throw new AuthorizationError('Token expirado');
+    }
+
+    req.user = decoded;
+    next();
   } catch (error) {
-    return res.status(500).json({
-      status: 'error',
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Error al verificar el token'
-      }
-    });
+    next(new AuthorizationError('Token inválido'));
   }
 };
 
