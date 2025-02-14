@@ -26,7 +26,7 @@ export const getClientes = async (req, res) => {
 export const getClienteById = async (req, res) => {
   try {
     const cliente = await prisma.cliente.findUnique({
-      where: { id: parseInt(req.params.id) }
+      where: { id_cliente: parseInt(req.params.id) }
     });
     if (!cliente) {
       return res.status(404).json({ message: 'Cliente no encontrado' });
@@ -41,7 +41,7 @@ export const getClienteById = async (req, res) => {
 export const updateCliente = async (req, res) => {
   try {
     const cliente = await prisma.cliente.update({
-      where: { id: parseInt(req.params.id) },
+      where: { id_cliente: parseInt(req.params.id) },
       data: req.body
     });
     if (!cliente) {
@@ -57,7 +57,7 @@ export const updateCliente = async (req, res) => {
 export const deleteCliente = async (req, res) => {
   try {
     const cliente = await prisma.cliente.delete({
-      where: { id: parseInt(req.params.id) }
+      where: { id_cliente: parseInt(req.params.id) }
     });
     if (!cliente) {
       return res.status(404).json({ message: 'Cliente no encontrado' });

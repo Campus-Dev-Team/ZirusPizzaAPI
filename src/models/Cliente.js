@@ -29,6 +29,7 @@ export const getClienteById = async (id) => {
 export const createCliente = async (data) => {
   return await prisma.cliente.create({
     data,
+    fecha_registro: new Date()
   });
 };
 

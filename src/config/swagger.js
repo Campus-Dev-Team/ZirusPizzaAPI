@@ -29,9 +29,11 @@ const options = {
           type: 'object',
           required: ['nombre', 'id_ciudad', 'telefono'],
           properties: {
-            id_cliente: {
-              type: 'integer',
-              description: 'ID del cliente'
+            id: {
+              type: 'string',
+              format: 'uuid',
+              description: 'ID del cliente',
+              readOnly: true
             },
             nombre: {
               type: 'string',
@@ -52,7 +54,8 @@ const options = {
             fecha_registro: {
               type: 'string',
               format: 'date-time',
-              description: 'Fecha de registro del cliente'
+              description: 'Fecha de registro del cliente',
+              readOnly: true
             }
           }
         },
