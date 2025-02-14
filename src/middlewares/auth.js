@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta';
  * @param {Object} res - Objeto de respuesta Express
  * @param {Function} next - Función next de Express
  */
-export const verifyToken = (req, res, next) => {
+export const authenticate = (req, res, next) => {
   try {
     // Obtener el token del header Authorization
     const authHeader = req.headers['authorization'];
