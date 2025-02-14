@@ -55,6 +55,142 @@ const options = {
               description: 'Fecha de registro del cliente'
             }
           }
+        },
+        User: {
+          type: 'object',
+          required: ['nombre', 'email', 'password'],
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              description: 'ID del usuario',
+              readOnly: true
+            },
+            nombre: {
+              type: 'string',
+              description: 'Nombre del usuario'
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              description: 'Email del usuario'
+            },
+            password: {
+              type: 'string',
+              format: 'password',
+              description: 'Contraseña del usuario',
+              writeOnly: true
+            },
+            role: {
+              type: 'string',
+              enum: ['admin', 'manager', 'user'],
+              default: 'user',
+              description: 'Rol del usuario'
+            },
+            estado: {
+              type: 'boolean',
+              default: true,
+              description: 'Estado del usuario'
+            },
+            ultimoLogin: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Última fecha de inicio de sesión',
+              nullable: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Fecha de creación',
+              readOnly: true
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Fecha de última actualización',
+              readOnly: true
+            }
+          }
+        },
+        ChangePassword: {
+          type: 'object',
+          required: ['currentPassword', 'newPassword'],
+          properties: {
+            currentPassword: {
+              type: 'string',
+              format: 'password',
+              description: 'Contraseña actual'
+            },
+            newPassword: {
+              type: 'string',
+              format: 'password',
+              description: 'Nueva contraseña'
+            }
+          }
+        },
+        LoginCredentials: {
+          type: 'object',
+          required: ['email', 'password'],
+          properties: {
+            email: {
+              type: 'string',
+              format: 'email',
+              example: 'john@example.com',
+              description: 'Email del usuario'
+            },
+            password: {
+              type: 'string',
+              format: 'password',
+              example: 'password123',
+              description: 'Contraseña del usuario'
+            }
+          }
+        },
+        LoginResponse: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              example: 'success'
+            },
+            data: {
+              type: 'object',
+              properties: {
+                token: {
+                  type: 'string',
+                  description: 'JWT Token'
+                },
+                user: {
+                  $ref: '#/components/schemas/User'
+                }
+              }
+            }
+          }
+        },
+        Error: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              example: 'error'
+            },
+            message: {
+              type: 'string',
+              example: 'Descripción del error'
+            }
+          }
+        },
+        Success: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              example: 'success'
+            },
+            data: {
+              type: 'object'
+            }
+          }
         }
       },
       securitySchemes: {
@@ -69,7 +205,6 @@ const options = {
       bearerAuth: []
     }]
   },
-  // Paths to files containing OpenAPI definitions
   apis: [
     './src/API/V1/routes/*.js',
     './src/API/V1/schemas/*.js',
