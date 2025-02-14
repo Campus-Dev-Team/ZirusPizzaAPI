@@ -16,7 +16,11 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "sequelize": "^6.37.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
