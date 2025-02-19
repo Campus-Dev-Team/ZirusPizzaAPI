@@ -1,141 +1,94 @@
-import { prisma } from '../../../config/db.js';
+import { UserModel } from '../../../models/User.js';
 import bcrypt from 'bcryptjs';
 
-
+/**
+ * Crea un nuevo usuario.
+ */
 export const createUser = async (req, res) => {
     try {
-      const { email, password, ...restData } = req.body;
-  
-      // Verificar si el usuario ya existe
-      const existingUser = await prisma.user.findUnique({
-        where: { email }
-      });
-  
-      if (existingUser) {
-        return res.status(400).json({ message: 'El email ya está registrado' });
-      }
-  
-      // Encriptar la contraseña
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Crear el usuario con la contraseña encriptada
-      const user = await prisma.user.create({
-        data: {
-          ...restData,
-          email,
-          password: hashedPassword
+        const existingUser = await UserModel.findUserByEmail(req.body.email);
+        if (existingUser) {
+            return res.status(400).json({ message: 'El email ya está registrado' });
         }
-      });
-  
-      // Omitir el password en la respuesta
-      const { password: _, ...userWithoutPassword } = user;
-  
-      // Enviar respuesta
-      return res.status(201).json({
-        message: 'Usuario creado exitosamente',
-        data: userWithoutPassword
-      });
-  
+
+        const user = await UserModel.createUser(req.body);
+        const { password: _, ...userWithoutPassword } = user;
+        return res.status(201).json({ message: 'Usuario creado exitosamente', data: userWithoutPassword });
     } catch (error) {
-      console.error('Error al crear usuario:', error);
-      return res.status(400).json({ 
-        message: 'Error al crear el usuario',
-        error: error.message 
-      });
+        return res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 };
 
-
+/**
+ * Obtiene todos los usuarios.
+ */
 export const getUsers = async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    try {
+        const users = await UserModel.getAllUsers({ select: { id: true, email: true, nombre: true, role: true, createdAt: true, estado: true, ultimoLogin: true, updatedAt: true } });
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener usuarios', error: error.message });
+    }
 };
 
-
+/**
+ * Obtiene un usuario por ID.
+ */
 export const getUserById = async (req, res) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.params.id }
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+    try {
+        const user = await UserModel.getUserById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener usuario', error: error.message });
     }
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-
+/**
+ * Actualiza un usuario.
+ */
 export const updateUser = async (req, res) => {
-  try {
-    const user = await prisma.user.update({
-      where: { id: req.params.id },
-      data: req.body
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+    try {
+        const user = await UserModel.updateUser(req.params.id, req.body);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({ message: 'Error al actualizar usuario', error: error.message });
     }
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
 };
 
-
+/**
+ * Elimina un usuario.
+ */
 export const deleteUser = async (req, res) => {
-  try {
-    const user = await prisma.user.delete({
-      where: { id: req.params.id }
-    });
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+    try {
+        await UserModel.deleteUser(req.params.id);
+        res.status(200).json({ message: 'Usuario eliminado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al eliminar usuario', error: error.message });
     }
-    res.status(200).json({ message: 'Usuario eliminado' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-
+/**
+ * Cambia la contraseña de un usuario.
+ */
 export const changePassword = async (req, res) => {
     try {
-      const { oldPassword, newPassword } = req.body;
-      const { id } = req.params;
-  
-      // Buscar el usuario
-      const user = await prisma.user.findUnique({
-        where: { id }
-      });
-  
-      if (!user) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-  
-      // Verificar la contraseña actual
-      const isValidPassword = await bcrypt.compare(oldPassword, user.password);
-      if (!isValidPassword) {
-        return res.status(401).json({ message: 'Contraseña actual incorrecta' });
-      }
-  
-      // Encriptar la nueva contraseña
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-  
-      // Actualizar la contraseña
-      await prisma.user.update({
-        where: { id },
-        data: {
-          password: hashedPassword,
-          updatedAt: new Date()
+        const { currentPassword, newPassword } = req.body;
+        const { id } = req.params;
+
+        if (newPassword.length < 8) {
+            return res.status(400).json({ message: 'La nueva contraseña debe tener al menos 8 caracteres' });
         }
-      });
-  
-      res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+
+        const user = await UserModel.getUserPasswordById(id);
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+        const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+        if (!isValidPassword) return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+
+        await UserModel.changePassword(id, newPassword);
+        res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error al cambiar contraseña', error: error.message });
     }
 };

@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 
 // Configurar CORS para permitir acceso en la red local
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://172.16.104.13:3000'], // Ajusta la IP de tu máquina local
+  origin: ['http://localhost:3000', 'http://localhost:5173'], // Ajusta la IP de tu máquina local
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };

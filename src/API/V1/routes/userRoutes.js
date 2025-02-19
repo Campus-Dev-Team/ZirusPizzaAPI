@@ -182,10 +182,10 @@ router.delete('/:id', deleteUser);
  *           schema:
  *             type: object
  *             required:
- *               - oldPassword
+ *               - currentPassword
  *               - newPassword
  *             properties:
- *               oldPassword:
+ *               currentPassword:
  *                 type: string
  *                 description: Contraseña actual
  *               newPassword:
@@ -203,7 +203,7 @@ router.delete('/:id', deleteUser);
  *       500:
  *         description: Error del servidor
  */
-router.post('/:id/change-password', 
+router.put('/:id/change-password', 
   validateSchema(changePasswordSchema), 
   changePassword
 );

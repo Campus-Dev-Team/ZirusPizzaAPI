@@ -5,9 +5,7 @@ import { prisma } from '../config/db.js';
  */
 export const getAllClientes = async () => {
   return await prisma.cliente.findMany({
-    include: {
-      ciudad: true, // Trae la ciudad relacionada
-    },
+    include: { ciudad: true },
   });
 };
 
@@ -17,9 +15,7 @@ export const getAllClientes = async () => {
 export const getClienteById = async (id) => {
   return await prisma.cliente.findUnique({
     where: { id_cliente: Number(id) },
-    include: {
-      ciudad: true, // Incluye la relación con ciudad
-    },
+    include: { ciudad: true },
   });
 };
 
@@ -28,8 +24,10 @@ export const getClienteById = async (id) => {
  */
 export const createCliente = async (data) => {
   return await prisma.cliente.create({
-    data,
-    fecha_registro: new Date()
+    data: {
+      ...data,
+      fecha_registro: new Date()
+    }
   });
 };
 

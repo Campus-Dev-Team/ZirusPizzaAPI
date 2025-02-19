@@ -1,10 +1,10 @@
 import express from 'express';
 import {
-  createCliente,
+  addCliente,
   getClientes,
-  getClienteById,
-  updateCliente,
-  deleteCliente
+  getCliente,
+  editCliente,
+  removeCliente
 } from '../controllers/clienteController.js';
 
 const router = express.Router();
@@ -57,7 +57,7 @@ router.get('/', getClientes);
  *       404:
  *         description: Cliente no encontrado
  */
-router.get('/:id', getClienteById);
+router.get('/:id', getCliente);
 
 /**
  * @swagger
@@ -81,7 +81,7 @@ router.get('/:id', getClienteById);
  *       400:
  *         description: Error al crear el cliente
  */
-router.post('/', createCliente);
+router.post('/', addCliente);
 
 /**
  * @swagger
@@ -114,7 +114,7 @@ router.post('/', createCliente);
  *       404:
  *         description: Cliente no encontrado
  */
-router.put('/:id', updateCliente);
+router.put('/:id', editCliente);
 
 /**
  * @swagger
@@ -135,6 +135,6 @@ router.put('/:id', updateCliente);
  *       404:
  *         description: Cliente no encontrado
  */
-router.delete('/:id', deleteCliente);
+router.delete('/:id', removeCliente);
 
 export default router;

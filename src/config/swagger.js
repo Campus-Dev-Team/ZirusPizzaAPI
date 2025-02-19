@@ -194,6 +194,40 @@ const options = {
               type: 'object'
             }
           }
+        },
+        Producto: {
+          type: 'object',
+          required: ['nombre', 'precio', 'id_categoria'],
+          properties: {
+            id_producto: {
+              type: 'integer',
+              description: 'ID del producto',
+              readOnly: true
+            },
+            nombre: {
+              type: 'string',
+              description: 'Nombre del producto'
+            },
+            descripcion: {
+              type: 'string',
+              description: 'Descripción del producto',
+              nullable: true
+            },
+            precio: {
+              type: 'number',
+              format: 'decimal',
+              description: 'Precio del producto'
+            },
+            id_categoria: {
+              type: 'integer',
+              description: 'ID de la categoría del producto'
+            },
+            disponible: {
+              type: 'boolean',
+              description: 'Disponibilidad del producto',
+              default: true
+            }
+          }
         }
       },
       securitySchemes: {

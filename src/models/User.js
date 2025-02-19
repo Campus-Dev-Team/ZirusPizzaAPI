@@ -1,87 +1,64 @@
-import { prisma } from '../config/db.js';
+import { prisma } from '../../src/config/db.js';
+import bcrypt from 'bcryptjs';
 
-/**
- * Obtiene todos los usuarios.
- */
-export const getAllUsers = async () => {
-  return await prisma.user.findMany();
-};
+export const UserModel = {
+    async createUser(data) {
+        const { email, password, ...restData } = data;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        return prisma.user.create({
+            data: {
+                ...restData,
+                email,
+                password: hashedPassword,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        });
+    },
 
-/**
- * Obtiene un usuario por ID.
- */
-export const getUserById = async (id) => {
-  return await prisma.user.findUnique({
-    where: { id: id }
-  });
-};
+    async findUserByEmail(email) {
+        return prisma.user.findUnique({ where: { email } });
+    },
 
-/**
- * Obtiene un usuario por email.
- */
-export const getUserByEmail = async (email) => {
-  return await prisma.user.findUnique({
-    where: { email: email }
-  });
-};
+    async getAllUsers() {
+        return prisma.user.findMany({
+            select: { id: true, email: true, nombre: true, role: true, createdAt: true }
+        });
+    },
 
-/**
- * Crea un nuevo usuario.
- */
-export const createUser = async (data) => {
-  return await prisma.user.create({
-    data: {
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    async getUserById(id) {
+        return prisma.user.findUnique({
+            where: { id },
+            ...options
+        });
+    },
+
+    async updateUser(id, data) {
+        return prisma.user.update({
+            where: { id },
+            data: { ...data, updatedAt: new Date() }
+        });
+    },
+
+    async deleteUser(id) {
+        return prisma.user.delete({ where: { id } });
+    },
+
+    async changePassword(id, newPassword) {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        return prisma.user.update({
+            where: { id },
+            data: { password: hashedPassword, updatedAt: new Date() }
+        });
+    },
+
+    async getUserPasswordById(id) {
+      return prisma.user.findUnique({
+          where: { id },
+          select: { password: true }
+      });
     }
-  });
+  
 };
 
-/**
- * Actualiza un usuario por ID.
- */
-export const updateUser = async (id, data) => {
-  return await prisma.user.update({
-    where: { id: id },
-    data: {
-      ...data,
-      updatedAt: new Date()
-    }
-  });
-};
 
-/**
- * Actualiza el último login de un usuario.
- */
-export const updateUserLastLogin = async (id) => {
-  return await prisma.user.update({
-    where: { id: id },
-    data: {
-      ultimoLogin: new Date(),
-      updatedAt: new Date()
-    }
-  });
-};
-
-/**
- * Elimina un usuario por ID.
- */
-export const deleteUser = async (id) => {
-  return await prisma.user.delete({
-    where: { id: id }
-  });
-};
-
-/**
- * Cambia el estado de un usuario (activo/inactivo).
- */
-export const toggleUserStatus = async (id, estado) => {
-  return await prisma.user.update({
-    where: { id: id },
-    data: {
-      estado: estado,
-      updatedAt: new Date()
-    }
-  });
-};
